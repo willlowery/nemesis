@@ -3,29 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/home/will/FrontController/test/annotation/response/SimpleRenderer.java</file>
-            <file>file:/home/will/FrontController/src/form/parser/StringParser.java</file>
-            <file>file:/home/will/FrontController/src/form/ParseException.java</file>
-            <file>file:/home/will/FrontController/src/renderer/SimpleRenderer.java</file>
-            <file>file:/home/will/FrontController/src/servlet/Servlet.java</file>
-            <file>file:/home/will/FrontController/src/form/parser/IntegerParser.java</file>
-            <file>file:/home/will/FrontController/src/annotation/response/ResponseWalker.java</file>
-            <file>file:/home/will/FrontController/src/renderer/SimpleNotFoundRenderer.java</file>
-            <file>file:/home/will/FrontController/src/renderer/SimpleExceptionRenderer.java</file>
-            <file>file:/home/will/FrontController/test/annotation/response/ResponseWalkerTest.java</file>
-            <file>file:/home/will/FrontController/src/form/Form.java</file>
-            <file>file:/home/will/FrontController/src/form/StandardForm.java</file>
-            <file>file:/home/will/FrontController/test/form/DummyRequest.java</file>
-            <file>file:/home/will/FrontController/test/annotation/gateway/ProxyTest.java</file>
-            <file>file:/home/will/FrontController/src/annotation/gateway/Form.java</file>
-            <file>file:/home/will/FrontController/src/annotation/response/Renderer.java</file>
-            <file>file:/home/will/FrontController/src/annotation/response/Listing.java</file>
-            <file>file:/home/will/FrontController/src/annotation/response/Element.java</file>
-            <file>file:/home/will/FrontController/src/form/FormElementParser.java</file>
-            <file>file:/home/will/FrontController/src/renderer/Renderer.java</file>
-            <file>file:/home/will/FrontController/test/form/parser/IntegerParserTest.java</file>
-            <file>file:/home/will/FrontController/src/annotation/gateway/Proxy.java</file>
-            <file>file:/home/will/FrontController/test/form/StandardFormTest.java</file>
+            <file>file:/home/will/git/front/nemesis/test/form/StandardFormTest.java</file>
+            <file>file:/home/will/git/front/nemesis/test/annotation/response/SimpleRenderer.java</file>
+            <file>file:/home/will/git/front/nemesis/src/annotation/response/ResponseWalker.java</file>
+            <file>file:/home/will/git/front/nemesis/src/annotation/response/Renderer.java</file>
+            <file>file:/home/will/git/front/nemesis/test/annotation/gateway/ProxyTest.java</file>
+            <file>file:/home/will/git/front/nemesis/src/annotation/gateway/Proxy.java</file>
+            <file>file:/home/will/git/front/nemesis/src/annotation/response/JSONRenderer.java</file>
+            <file>file:/home/will/git/front/nemesis/src/servlet/Servlet.java</file>
+            <file>file:/home/will/git/front/nemesis/test/annotation/response/ResponseWalkerTest.java</file>
+            <file>file:/home/will/git/front/nemesis/test/annotation/response/JSONRendererTest.java</file>
         </group>
     </open-files>
 </project-private>

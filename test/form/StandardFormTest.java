@@ -5,6 +5,7 @@ import form.parser.StringParser;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import static org.hamcrest.CoreMatchers.is;
@@ -26,7 +27,7 @@ public class StandardFormTest extends StandardForm {
     public void testGetOnEmptyRequest_ReturnsNull() {
         HashMap<String, String[]> parameters = new HashMap<>();
         map(new FakeRequest(parameters));
-        assertThat(get("field"), is((String) null));
+        assertNull( get("field") );
     }
 
     @Test
@@ -38,14 +39,14 @@ public class StandardFormTest extends StandardForm {
         map(new FakeRequest(parameters));
         
         
-        assertThat(get("field"), is("value"));
-        assertThat(get("int-field"), is(1));
+        assertThat((String) get("field"), is("value"));
+        assertThat((Integer) get("int-field"), is(1));
     }
     
     @Test
     public void testGetValues_ReturnsEmptyList(){
-        map(new FakeRequest(new HashMap<>()));        
-        assertThat(super.getValues("field"), is(Collections.EMPTY_LIST));
+        map(new FakeRequest(new HashMap<String, String[]>()));        
+        assertThat((List) getValues("field"), is(Collections.EMPTY_LIST));
     }
     
     @Test
@@ -56,8 +57,8 @@ public class StandardFormTest extends StandardForm {
         
         map(new FakeRequest(parameters));        
         
-        assertThat(super.getValues("field"), is(Arrays.asList("value", "value 2")));
-        assertThat(super.getValues("int-field"), is(Arrays.asList(1,2)));
+        assertThat((List) getValues("field"), is(Arrays.asList("value", "value 2")));
+        assertThat((List) getValues("int-field"), is(Arrays.asList(1,2)));
     }
     
     

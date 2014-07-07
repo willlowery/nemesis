@@ -29,8 +29,10 @@ public class ResponseWalkerTest {
         walker.walk(new SingleElement());
         List<SimpleRenderer.Event> history = renderer.getHistory();
         assertThat(history.get(0), instanceOf(EnterEvent.class));
+        
         assertThat(history.get(1), instanceOf(EnterEvent.class));
         assertThat(history.get(2), instanceOf(ExitEvent.class));
+        
         assertThat(history.get(3), instanceOf(ExitEvent.class));
     }
 
@@ -39,6 +41,23 @@ public class ResponseWalkerTest {
         SimpleRenderer renderer = new SimpleRenderer();
         ResponseWalker walker = new ResponseWalker(renderer);
         walker.walk(new SingleCollection());
+        List<SimpleRenderer.Event> history = renderer.getHistory();
+        assertThat(history.get(0), instanceOf(EnterEvent.class));
+        assertThat(history.get(1), instanceOf(EnterEvent.class));
+
+        assertThat(history.get(2), instanceOf(EnterEvent.class));
+        assertThat(history.get(3), instanceOf(EnterEvent.class));
+        assertThat(history.get(4), instanceOf(EnterEvent.class));
+
+        assertThat(history.get(5), instanceOf(ExitEvent.class));
+        assertThat(history.get(6), instanceOf(ExitEvent.class));
+    }
+    
+    @Test
+    public void testSingleArrayResponse() {
+        SimpleRenderer renderer = new SimpleRenderer();
+        ResponseWalker walker = new ResponseWalker(renderer);
+        walker.walk(new SingleArray());
         List<SimpleRenderer.Event> history = renderer.getHistory();
         assertThat(history.get(0), instanceOf(EnterEvent.class));
         assertThat(history.get(1), instanceOf(EnterEvent.class));
@@ -101,10 +120,20 @@ public class ResponseWalkerTest {
             return Arrays.asList("value", "value", "value");
         }
     }
+    
+    @Element("SingleArray")
+    public static class SingleArray {
+
+        @Element("Element")
+        @Listing(String.class)
+        public String[] getElement() {
+            return new String[]{"value", "value", "value"};
+        }
+    }
 
     @Element("SingleCollectionOfResponses")
     public static class SingleCollectionOfResponses {
-
+        
         @Element("Element")
         @Listing(SingleElement.class)
         public List<SingleElement> getElement() {

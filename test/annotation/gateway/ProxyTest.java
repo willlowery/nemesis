@@ -65,7 +65,7 @@ public class ProxyTest {
     @Test
     public void testReturnValue() {
         Proxy proxy = new Proxy(GatewayWithReturn.class);
-        assertThat(proxy.handleMethod(Handle.Method.GET), is("hello"));
+        assertThat((String) proxy.handleMethod(Handle.Method.GET), is("hello"));
     }
 
     @Resource("aResource")

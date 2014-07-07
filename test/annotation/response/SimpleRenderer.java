@@ -27,7 +27,12 @@ public class SimpleRenderer implements Renderer {
     }
 
     @Override
-    public void exitElement(String name) {
+    public void exitMethod(String name) {
+        history.add(new ExitEvent(name, null));
+    }
+
+    @Override
+    public void exitObject(String name) {
         history.add(new ExitEvent(name, null));
     }
 

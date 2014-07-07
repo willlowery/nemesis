@@ -48,7 +48,6 @@ public class Servlet extends HttpServlet {
             if (proxy == null) {
                 Renderer renderer = (Renderer) resourceNotFoundRenderer.newInstance();
                 renderer.render(req, resp, null);
-
             } else {
                 Class<? extends Form> formClass = proxy.getFormClass(Handle.Method.GET);
                 if (formClass == null) {

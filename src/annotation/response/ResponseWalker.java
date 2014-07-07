@@ -3,6 +3,7 @@ package annotation.response;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class ResponseWalker {
         this.walk(response, response.getClass());
     }
 
-    private void walk(Object response, Class<?> toWalk) {
+    public void walk(Object response, Class<?> toWalk) {
         visit(getElement(toWalk), response);
         List<Method> elementsToWalk = getElementsToWalk(toWalk);
         for (Method method : elementsToWalk) {
@@ -30,22 +31,27 @@ public class ResponseWalker {
                 Object returned = method.invoke(response);
                 visit(getElementName(method), returned, method);
                 if (isA(method.getReturnType(), Collection.class)) {
-                    if (method.getAnnotation(Listing.class).value().isAnnotationPresent(Element.class)) {
-                        for (Object o : (Collection) returned) {                            
-                            walk(o, method.getAnnotation(Listing.class).value());
-                        }                            
-                    } else {
-                        for (Object o : (Collection) returned) {
-                            visit(getElementName(method), o, method);
-                        }
-                    }
+                    handleCollection(method, returned);
+                } else if (method.getReturnType().isArray()) {
+                    handleCollection(method, Arrays.asList((Object[]) returned));
                 }
                 leave(getElementName(method));
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-
             }
         }
-        leave(getElement(toWalk));
+        leaveObject(getElement(toWalk));
+    }
+
+    private void handleCollection(Method method, Object returned) {
+        if (method.getAnnotation(Listing.class).value().isAnnotationPresent(Element.class)) {
+            for (Object o : (Collection) returned) {
+                walk(o, method.getAnnotation(Listing.class).value());
+            }
+        } else {
+            for (Object o : (Collection) returned) {
+                visit(getElementName(method), o, method);
+            }
+        }
     }
 
     private boolean isA(Class<?> a, Class<?> b) {
@@ -100,11 +106,16 @@ public class ResponseWalker {
 
     private void leave(String name) {
         for (Renderer r : renderers) {
-            r.exitElement(name);
+            r.exitMethod(name);
+        }
+    }
+
+    private void leaveObject(String name) {
+        for (Renderer r : renderers) {
+            r.exitObject(name);
         }
     }
 
     public static class ResponseNotAnnotatedException extends RuntimeException {
-
     }
 }
