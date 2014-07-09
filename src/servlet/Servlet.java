@@ -4,8 +4,9 @@ import annotation.gateway.Handle;
 import annotation.gateway.Proxy;
 import form.Form;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,8 +21,8 @@ import renderer.SimpleNotFoundRenderer;
  */
 public class Servlet extends HttpServlet {
 
-    private static final ConcurrentHashMap<String, Proxy> resources = new ConcurrentHashMap<>();
-    private static final ConcurrentSkipListSet< Class<?>> renderers = new ConcurrentSkipListSet<>();
+    private static final HashMap<String, Proxy> resources = new HashMap<>();
+    private static final List< Class<?>> renderers = new ArrayList<>();
     private static Class<?> exceptionRenderer = SimpleExceptionRenderer.class;
     private static Class<?> resourceNotFoundRenderer = SimpleNotFoundRenderer.class;
 
@@ -42,14 +43,42 @@ public class Servlet extends HttpServlet {
     }
 
     @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        handleMethod(req, resp, Handle.Method.DELETE);
+    }
+
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        handleMethod(req, resp, Handle.Method.GET);
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        handleMethod(req, resp, Handle.Method.OPTIONS);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        handleMethod(req, resp, Handle.Method.POST);
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        handleMethod(req, resp, Handle.Method.PUT);
+    }
+    
+    
+    
+
+    private void handleMethod(HttpServletRequest req, HttpServletResponse resp, final Handle.Method handle) {
         Proxy proxy = resources.get(req.getRequestURI());
         try {
             if (proxy == null) {
                 Renderer renderer = (Renderer) resourceNotFoundRenderer.newInstance();
                 renderer.render(req, resp, null);
             } else {
-                Class<? extends Form> formClass = proxy.getFormClass(Handle.Method.GET);
+
+                Class<? extends Form> formClass = proxy.getFormClass(handle);
                 if (formClass == null) {
                     render(req, resp, proxy.handleMethod(Handle.Method.GET));
                 } else {

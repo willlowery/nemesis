@@ -29,20 +29,30 @@ public class ResponseWalker {
         for (Method method : elementsToWalk) {
             try {
                 Object returned = method.invoke(response);
-                visit(getElementName(method), returned, method);
-                if (isA(method.getReturnType(), Collection.class)) {
+
+                if (method.getReturnType().isAnnotationPresent(Element.class)) {
+                    visit(getElementName(method), returned, method);
+                    walk(returned, method.getReturnType());
+                    leave(getElementName(method));
+                } else if (isA(method.getReturnType(), Collection.class)) {
                     handleCollection(method, returned);
                 } else if (method.getReturnType().isArray()) {
                     handleCollection(method, Arrays.asList((Object[]) returned));
+                } else {
+                    visit(getElementName(method), returned, method);
+                    leave(getElementName(method));
                 }
-                leave(getElementName(method));
+
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                visit("Error", ex.getLocalizedMessage(), method);
+                leave("Error");
             }
         }
         leaveObject(getElement(toWalk));
     }
 
     private void handleCollection(Method method, Object returned) {
+        visitList(getElementName(method), method);
         if (method.getAnnotation(Listing.class).value().isAnnotationPresent(Element.class)) {
             for (Object o : (Collection) returned) {
                 walk(o, method.getAnnotation(Listing.class).value());
@@ -52,6 +62,7 @@ public class ResponseWalker {
                 visit(getElementName(method), o, method);
             }
         }
+        leaveList(getElementName(method));
     }
 
     private boolean isA(Class<?> a, Class<?> b) {
@@ -92,6 +103,12 @@ public class ResponseWalker {
         return elementsToWalk;
     }
 
+    private void visitList(String name, Method method) {
+        for (Renderer r : renderers) {
+            r.enterList(name, method);
+        }
+    }
+
     private void visit(String name, Object returned, Method method) {
         for (Renderer r : renderers) {
             r.enterElement(name, returned, method);
@@ -113,6 +130,12 @@ public class ResponseWalker {
     private void leaveObject(String name) {
         for (Renderer r : renderers) {
             r.exitObject(name);
+        }
+    }
+
+    private void leaveList(String name) {
+        for (Renderer r : renderers) {
+            r.exitList(name);
         }
     }
 

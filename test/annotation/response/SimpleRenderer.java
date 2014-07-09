@@ -36,6 +36,17 @@ public class SimpleRenderer implements Renderer {
         history.add(new ExitEvent(name, null));
     }
 
+    @Override
+    public void enterList(String name, Method method) {
+         history.add(new EnterEvent(name, null, method));
+    
+    }
+
+    @Override
+    public void exitList(String name) {
+        history.add(new ExitEvent(name, null));
+    }
+
     public static class Event {
 
         String element;

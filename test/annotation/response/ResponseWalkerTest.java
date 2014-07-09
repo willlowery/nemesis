@@ -3,6 +3,7 @@ package annotation.response;
 import annotation.response.ResponseWalker.ResponseNotAnnotatedException;
 import annotation.response.SimpleRenderer.EnterEvent;
 import annotation.response.SimpleRenderer.ExitEvent;
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -29,10 +30,10 @@ public class ResponseWalkerTest {
         walker.walk(new SingleElement());
         List<SimpleRenderer.Event> history = renderer.getHistory();
         assertThat(history.get(0), instanceOf(EnterEvent.class));
-        
+
         assertThat(history.get(1), instanceOf(EnterEvent.class));
         assertThat(history.get(2), instanceOf(ExitEvent.class));
-        
+
         assertThat(history.get(3), instanceOf(ExitEvent.class));
     }
 
@@ -52,7 +53,7 @@ public class ResponseWalkerTest {
         assertThat(history.get(5), instanceOf(ExitEvent.class));
         assertThat(history.get(6), instanceOf(ExitEvent.class));
     }
-    
+
     @Test
     public void testSingleArrayResponse() {
         SimpleRenderer renderer = new SimpleRenderer();
@@ -98,8 +99,27 @@ public class ResponseWalkerTest {
         assertThat(history.get(15), instanceOf(ExitEvent.class));
     }
 
-    public static class SimpleResponse {
+    @Test
+    public void testNestedResponse() {
+        SimpleRenderer renderer = new SimpleRenderer();
+        ResponseWalker walker = new ResponseWalker(renderer);
+        walker.walk(new NestedResponse());
+        List<SimpleRenderer.Event> history = renderer.getHistory();
 
+        assertThat(history.get(0), instanceOf(EnterEvent.class));
+        assertThat(history.get(1), instanceOf(EnterEvent.class));
+
+        assertThat(history.get(2), instanceOf(EnterEvent.class));
+        assertThat(history.get(3), instanceOf(EnterEvent.class));
+        
+        assertThat(history.get(4), instanceOf(ExitEvent.class));
+        assertThat(history.get(5), instanceOf(ExitEvent.class));
+
+        assertThat(history.get(6), instanceOf(ExitEvent.class));
+        assertThat(history.get(7), instanceOf(ExitEvent.class));
+    }
+   
+    public static class SimpleResponse {
     }
 
     @Element("SingleElement")
@@ -108,6 +128,15 @@ public class ResponseWalkerTest {
         @Element("Element")
         public String getElement() {
             return "value";
+        }
+    }
+
+    @Element("Nested")
+    public static class NestedResponse {
+
+        @Element("inner")
+        public SingleElement getElement() {
+            return new SingleElement();
         }
     }
 
@@ -120,7 +149,7 @@ public class ResponseWalkerTest {
             return Arrays.asList("value", "value", "value");
         }
     }
-    
+
     @Element("SingleArray")
     public static class SingleArray {
 
@@ -133,7 +162,7 @@ public class ResponseWalkerTest {
 
     @Element("SingleCollectionOfResponses")
     public static class SingleCollectionOfResponses {
-        
+
         @Element("Element")
         @Listing(SingleElement.class)
         public List<SingleElement> getElement() {
