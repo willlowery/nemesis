@@ -1,5 +1,7 @@
 package annotation.response;
 
+import init.Init;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ public class ResponseWalker {
         for (Method method : elementsToWalk) {
             try {
                 Object returned = method.invoke(response);
-
                 if (method.getReturnType().isAnnotationPresent(Element.class)) {
                     visit(getElementName(method), returned, method);
                     walk(returned, method.getReturnType());
@@ -42,7 +43,6 @@ public class ResponseWalker {
                     visit(getElementName(method), returned, method);
                     leave(getElementName(method));
                 }
-
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 visit("Error", ex.getLocalizedMessage(), method);
                 leave("Error");
@@ -70,6 +70,12 @@ public class ResponseWalker {
     }
 
     private String getElement(Class<?> toWalk) {
+        Class<?>[] interfaces = toWalk.getInterfaces();
+        for(Class<?> inter: interfaces ){
+            if (inter.isAnnotationPresent(Element.class)) {
+                return inter.getAnnotation(Element.class).value();
+            }   
+        }
         if (toWalk.isAnnotationPresent(Element.class)) {
             return toWalk.getAnnotation(Element.class).value();
         } else {
@@ -99,7 +105,6 @@ public class ResponseWalker {
                 }
             }
         }
-
         return elementsToWalk;
     }
 
@@ -110,8 +115,12 @@ public class ResponseWalker {
     }
 
     private void visit(String name, Object returned, Method method) {
+        Object value = returned;
+        for(Annotation anno: method.getAnnotations()){
+            value = Init.formatter(anno, value);
+        }
         for (Renderer r : renderers) {
-            r.enterElement(name, returned, method);
+            r.enterElement(name, value, method);
         }
     }
 

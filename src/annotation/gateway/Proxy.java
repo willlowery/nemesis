@@ -77,7 +77,9 @@ public class Proxy {
                 if (ex.getCause() instanceof RuntimeException) {
                     throw (RuntimeException) ex.getCause();
                 } else {
-                    throw new RuntimeException(ex.getCause());
+                    final RuntimeException runtimeException = new RuntimeException(ex.getMessage(),ex);
+                    runtimeException.setStackTrace(ex.getStackTrace());
+                    throw runtimeException;
                 }
             }
         }

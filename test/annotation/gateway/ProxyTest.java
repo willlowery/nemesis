@@ -55,7 +55,7 @@ public class ProxyTest {
         Proxy proxy = new Proxy(GatewayNeedingAForm.class);
         proxy.handleMethod(Handle.Method.GET, new FakeForm());
     }
-
+    
     @Test(expected = RuntimeException.class)
     public void testCheckedExceptionsAreThrownUp() {
         Proxy proxy = new Proxy(GatewayThrowingIOException.class);
@@ -85,6 +85,12 @@ public class ProxyTest {
         public void handleGet(@Form FakeForm o) {
             throw new IllegalStateException("It worked");
         }
+        
+        @Handle(method = Handle.Method.PUT)
+        public void handlePut(@Form FakeForm o,String s) {
+            throw new IllegalStateException("It worked");
+        }
+        
 
     }
 
@@ -102,7 +108,7 @@ public class ProxyTest {
 
         @Override
         public void map(HttpServletRequest request) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            
         }
 
     }

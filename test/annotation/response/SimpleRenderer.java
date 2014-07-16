@@ -67,7 +67,7 @@ public class SimpleRenderer implements Renderer {
 
     public static class EnterEvent extends Event {
 
-        Object returned;
+        public Object returned;
 
         public EnterEvent(String element, Object returned, Method method) {
             super(element, method);
