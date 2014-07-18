@@ -24,9 +24,7 @@ public class Servlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (Init.directory != null && req.getRequestURI().startsWith(Init.directory.getWebRoot())) {
-            Init.directory.render(req, resp, null);
-        } else {
+        if (!Init.directory.render(req, resp, null)) {
             handleMethod(req, resp, Handle.Method.GET);
         }
     }
@@ -63,14 +61,11 @@ public class Servlet extends HttpServlet {
                 }
             }
         } catch (InstantiationException | IllegalAccessException | RuntimeException ex) {
-            RuntimeException exception = new RuntimeException(ex.getMessage(),ex.getCause());
-            exception.setStackTrace(ex.getStackTrace());
-            throw exception;
-//            try {
-//                Renderer renderer = (Renderer) Init.exceptionRenderer.newInstance();
-//                renderer.render(req, resp, ex);
-//            } catch (InstantiationException | IllegalAccessException ex1) {
-//            }
+            try {
+                Renderer renderer = (Renderer) Init.exceptionRenderer.newInstance();
+                renderer.render(req, resp, ex);
+            } catch (InstantiationException | IllegalAccessException ex1) {
+            }
         }
     }
 
