@@ -1,5 +1,6 @@
 package renderer;
 
+import init.Init;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +23,12 @@ public class SimpleNotFoundRenderer implements Renderer {
             writer.print(req.getRequestURI());
             writer.print(" had no mapping");            
             writer.println("<h3>");
+            writer.println("<ul>");
+            for(String url : Init.resources.keySet()){
+                
+                writer.println("<li>" + url + "<li>");
+            }
+            writer.println("</ul>");            
             writer.println("</body>");
             writer.println("</html>");
 

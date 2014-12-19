@@ -1,7 +1,7 @@
-package annotation.response;
+package response;
 
-import init.Init;
-import java.lang.annotation.Annotation;
+import annotation.Element;
+import annotation.Listing;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -115,18 +115,15 @@ public class ResponseWalker {
     }
 
     private void visit(String name, Object returned, Method method) {
-        Object value = returned;
-        for(Annotation anno: method.getAnnotations()){
-            value = Init.formatter(anno, value);
-        }
+        Object value = returned;        
         for (Renderer r : renderers) {
-            r.enterElement(name, value, method);
+            r.enterMethod(name, value, method);
         }
     }
 
     private void visit(String name, Object returned) {
         for (Renderer r : renderers) {
-            r.enterElement(name, returned);
+            r.enterObject(name, returned);
         }
     }
 

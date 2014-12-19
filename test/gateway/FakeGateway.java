@@ -1,5 +1,8 @@
 
-package annotation.gateway;
+package gateway;
+
+import annotation.Handle;
+import annotation.Resource;
 
 /**
  *
@@ -8,23 +11,23 @@ package annotation.gateway;
 @Resource(value = "nowhere")
 public class FakeGateway {
 
-    @Handle(method = Handle.Method.GET)
+    @Handle(method = "GET")
     public void handleGet() {
     }
 
-    @Handle(method = Handle.Method.DELETE)
+    @Handle(method = "DELETE")
     public void handleDelete() {
     }
 
-    @Handle(method = Handle.Method.PUT)
+    @Handle(method = "PUT")
     public void handlePut() {
     }
 
-    @Handle(method = Handle.Method.POST)
+    @Handle(method = "POST")
     public void handlePost() {
     }
 
-    @Handle(method = Handle.Method.OPTIONS)
+    @Handle(method = "OPTIONS")
     public void handleOptions() {
     }
     

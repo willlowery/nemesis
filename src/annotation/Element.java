@@ -1,4 +1,4 @@
-package annotation.response;
+package annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

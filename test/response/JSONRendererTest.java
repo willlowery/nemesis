@@ -1,11 +1,10 @@
-package annotation.response;
+package response;
 
+import annotation.Element;
+import annotation.Listing;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -32,54 +31,54 @@ public class JSONRendererTest {
 
     @Test
     public void testEnterExit_ReturnsEmptyObject() {
-        renderer.enterElement("response", null);
+        renderer.enterObject("response", null);
         renderer.exitObject("response");
-        assertThat(stream.toString(), is("{}"));
+        assertThat(stream.toString(), is("{\"@object\": \"response\"}"));
     }
 
     @Test
     public void testEnterSingle_ReturnsSingle() throws NoSuchMethodException {
-        renderer.enterElement("response", null);
+        renderer.enterObject("response", null);
 
-        renderer.enterElement("field", "value", Class.class.getMethod("str"));
+        renderer.enterMethod("field", "value", Class.class.getMethod("str"));
         renderer.exitMethod("field");
 
         renderer.exitObject("response");
-        assertThat(stream.toString(), is("{\"field\": \"value\"}"));
+        assertThat(stream.toString(), is("{\"@object\": \"response\", \"field\": \"value\"}"));
     }
 
     @Test
     public void testMultiFields() throws NoSuchMethodException {
-        renderer.enterElement("response", null);
+        renderer.enterObject("response", null);
 
-        renderer.enterElement("field", "value", Class.class.getMethod("str"));
+        renderer.enterMethod("field", "value", Class.class.getMethod("str"));
         renderer.exitMethod("field");
 
-        renderer.enterElement("fieldA", "value", Class.class.getMethod("str"));
+        renderer.enterMethod("fieldA", "value", Class.class.getMethod("str"));
         renderer.exitMethod("fieldA");
 
         renderer.exitObject("response");
-        assertThat(stream.toString(), is("{\"field\": \"value\", \"fieldA\": \"value\"}"));
+        assertThat(stream.toString(), is("{\"@object\": \"response\", \"field\": \"value\", \"fieldA\": \"value\"}"));
     }
 
     @Test
     public void testNestedObjects() throws NoSuchMethodException {
-        renderer.enterElement("response", null);
+        renderer.enterObject("response", null);
 
-        renderer.enterElement("A", renderer, Class.class.getMethod("a"));
+        renderer.enterMethod("A", renderer, Class.class.getMethod("a"));
 
-        renderer.enterElement("InnerObject", renderer);
+        renderer.enterObject("InnerObject", renderer);
 
-        renderer.enterElement("Inner", "hello", Class.class.getMethod("str"));
+        renderer.enterMethod("Inner", "hello", Class.class.getMethod("str"));
         renderer.exitMethod("Inner");
 
         renderer.exitObject("InnerObject");
 
-        renderer.enterElement("A", renderer, Class.class.getMethod("a"));
+        renderer.enterMethod("A", renderer, Class.class.getMethod("a"));
 
-        renderer.enterElement("InnerObject", renderer);
+        renderer.enterObject("InnerObject", renderer);
 
-        renderer.enterElement("I", "h", Class.class.getMethod("str"));
+        renderer.enterMethod("I", "h", Class.class.getMethod("str"));
         renderer.exitMethod("I");
 
         renderer.exitObject("InnerObject");
@@ -87,50 +86,50 @@ public class JSONRendererTest {
         renderer.exitMethod("A");
 
         renderer.exitObject("response");
-        assertThat(stream.toString(), is("{\"A\": {\"Inner\": \"hello\"}, \"A\": {\"I\": \"h\"}}"));
+        assertThat(stream.toString(), is("{\"@object\": \"response\", \"A\": {\"@object\": \"InnerObject\", \"Inner\": \"hello\"}, \"A\": {\"@object\": \"InnerObject\", \"I\": \"h\"}}"));
     }
 
     @Test
     public void testList() throws NoSuchMethodException {
-        renderer.enterElement("response", null);
+        renderer.enterObject("response", null);
 
         renderer.enterList("List", Class.class.getMethod("list"));
-        renderer.enterElement("List", "A", Class.class.getMethod("list"));
-        renderer.enterElement("List", "A", Class.class.getMethod("list"));
+        renderer.enterMethod("List", "A", Class.class.getMethod("list"));
+        renderer.enterMethod("List", "A", Class.class.getMethod("list"));
         renderer.exitList("List");
 
         renderer.exitObject("response");
-        assertThat(stream.toString(), is("{\"List\": [\"A\", \"A\"]}"));
+        assertThat(stream.toString(), is("{\"@object\": \"response\", \"List\": [\"A\", \"A\"]}"));
     }
 
     @Test
     public void testListoObject() throws NoSuchMethodException {
-        renderer.enterElement("response", null);
+        renderer.enterObject("response", null);
 
         renderer.enterList("List", Class.class.getMethod("list"));
 
-        renderer.enterElement("OO", renderer);
-        renderer.enterElement("inner", "A", Class.class.getMethod("str"));
+        renderer.enterObject("OO", renderer);
+        renderer.enterMethod("inner", "A", Class.class.getMethod("str"));
         renderer.exitObject("OO");
 
-        renderer.enterElement("OO", renderer);
-        renderer.enterElement("inner", "A", Class.class.getMethod("str"));
+        renderer.enterObject("OO", renderer);
+        renderer.enterMethod("inner", "A", Class.class.getMethod("str"));
         renderer.exitObject("OO");
 
         renderer.exitList("List");
         
-        renderer.enterElement("apple", "A",  Class.class.getMethod("str"));
+        renderer.enterMethod("apple", "A",  Class.class.getMethod("str"));
         renderer.exitMethod("apple");
 
         renderer.exitObject("response");
-        assertThat(stream.toString(), is("{\"List\": [{\"inner\": \"A\"}, {\"inner\": \"A\"}], \"apple\": \"A\"}"));
+        assertThat(stream.toString(), is("{\"@object\": \"response\", \"List\": [{\"@object\": \"OO\", \"inner\": \"A\"}, {\"@object\": \"OO\", \"inner\": \"A\"}], \"apple\": \"A\"}"));
     }
 
     @Test
     public void testFormatDispatch_ReturnsFormattedObject() {
-        renderer.enterElement("response", null);
+        renderer.enterObject("response", null);
         renderer.exitObject("response");
-        assertThat(stream.toString(), is("{}"));
+        assertThat(stream.toString(), is("{\"@object\": \"response\"}"));
     }
 
     @Element("a")

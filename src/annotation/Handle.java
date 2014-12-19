@@ -1,8 +1,10 @@
 
-package annotation.gateway;
+package annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import renderer.Renderer;
+import renderer.SimpleRenderer;
 
 /**
  *
@@ -11,13 +13,6 @@ import java.lang.annotation.RetentionPolicy;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Handle {
 
-    Method method();
-        
-    public enum Method{
-        DELETE(),
-        GET(),
-        POST(),
-        PUT(),
-        OPTIONS();
-    }
+    String method();      
+    Class<? extends Renderer> as() default SimpleRenderer.class;
 }

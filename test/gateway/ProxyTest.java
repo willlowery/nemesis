@@ -1,7 +1,14 @@
-package annotation.gateway;
+package gateway;
 
-import annotation.gateway.Proxy.InvalidGatewayException;
+import annotation.Handle;
+import annotation.Resource;
+import gateway.Proxy;
+import gateway.Proxy.InvalidGatewayException;
+import form.Form;
+import form.ValidationException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -36,12 +43,11 @@ public class ProxyTest {
     @Test
     public void methodsAreCalled() {
         Proxy proxy = new Proxy(SpyGateway.class);
-        proxy.handleMethod(Handle.Method.GET);
-        proxy.handleMethod(Handle.Method.DELETE);
-        proxy.handleMethod(Handle.Method.OPTIONS);
-        proxy.handleMethod(Handle.Method.POST);
-        proxy.handleMethod(Handle.Method.PUT);
-        
+        proxy.handleMethod("get");
+        proxy.handleMethod("delete");
+        proxy.handleMethod("options");
+        proxy.handleMethod("post");
+        proxy.handleMethod("put");
 
         assertThat(SpyGateway.getCalled, is(true));
         assertThat(SpyGateway.putCalled, is(true));
@@ -53,25 +59,32 @@ public class ProxyTest {
     @Test(expected = IllegalStateException.class)
     public void testGatewayMethodGetsForm() {
         Proxy proxy = new Proxy(GatewayNeedingAForm.class);
-        proxy.handleMethod(Handle.Method.GET, new FakeForm());
+        proxy.handleMethod("get", new FakeForm());
     }
-    
+
+    @Test
+    public void testProxyGetFormClass() {
+        Proxy proxy = new Proxy(GatewayNeedingAForm.class);
+        Class<? extends Form> formClass = proxy.getFormClass("get");
+        assertThat(formClass.getCanonicalName(), is(FakeForm.class.getCanonicalName()));
+    }
+
     @Test(expected = RuntimeException.class)
     public void testCheckedExceptionsAreThrownUp() {
         Proxy proxy = new Proxy(GatewayThrowingIOException.class);
-        proxy.handleMethod(Handle.Method.GET);
+        proxy.handleMethod("get");
     }
 
     @Test
     public void testReturnValue() {
         Proxy proxy = new Proxy(GatewayWithReturn.class);
-        assertThat((String) proxy.handleMethod(Handle.Method.GET), is("hello"));
+        assertThat((String) proxy.handleMethod("get"), is("hello"));
     }
 
     @Resource("aResource")
     public static class GatewayThrowingIOException {
 
-        @Handle(method = Handle.Method.GET)
+        @Handle(method = "GET")
         public void handleGet() throws IOException {
             throw new IOException();
         }
@@ -81,34 +94,38 @@ public class ProxyTest {
     @Resource("aResource")
     public static class GatewayNeedingAForm {
 
-        @Handle(method = Handle.Method.GET)
-        public void handleGet(@Form FakeForm o) {
+        @Handle(method = "GET")
+        public void handleGet(FakeForm o) {
             throw new IllegalStateException("It worked");
         }
-        
-        @Handle(method = Handle.Method.PUT)
-        public void handlePut(@Form FakeForm o,String s) {
+
+        @Handle(method = "PUT")
+        public void handlePut(FakeForm o, String s) {
             throw new IllegalStateException("It worked");
         }
-        
 
     }
 
     @Resource("anotherResource")
     public static class GatewayWithReturn {
 
-        @Handle(method = Handle.Method.GET)
+        @Handle(method = "GET")
         public String handleGet() {
             return "hello";
         }
 
     }
 
-    public static class FakeForm implements form.Form {
+    public static class FakeForm implements Form {
 
         @Override
         public void map(HttpServletRequest request) {
-            
+
+        }
+
+        @Override
+        public List<ValidationException> getValidationExceptions() {
+            return new ArrayList<>();
         }
 
     }

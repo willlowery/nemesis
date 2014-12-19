@@ -1,19 +1,15 @@
-package annotation.response;
+package response;
 
-import annotation.response.ResponseWalker.ResponseNotAnnotatedException;
-import annotation.response.SimpleRenderer.EnterEvent;
-import annotation.response.SimpleRenderer.ExitEvent;
-import annotation.response.formatter.FormatDate;
-import annotation.response.formatter.SimpleDateFormatter;
-import init.Init;
+import annotation.Element;
+import annotation.Listing;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import util.DateUtil;
+import response.ResponseWalker.ResponseNotAnnotatedException;
+import response.SimpleRenderer.EnterEvent;
+import response.SimpleRenderer.ExitEvent;
 
 /**
  *
@@ -53,21 +49,21 @@ public class ResponseWalkerTest {
         assertThat(history.get(3), instanceOf(ExitEvent.class));
     }
 
-    @Test
-    public void testFormattedElementResponse() {
-        SimpleRenderer renderer = new SimpleRenderer();
-        ResponseWalker walker = new ResponseWalker(renderer);
-        Init.register(FormatDate.class, SimpleDateFormatter.class);
-        walker.walk(new FormattedResponse());
-        List<SimpleRenderer.Event> history = renderer.getHistory();
-        assertThat(history.get(0), instanceOf(EnterEvent.class));
-
-        assertThat(history.get(1), instanceOf(EnterEvent.class));
-        assertThat(((EnterEvent) history.get(1)).returned, is((Object) "1992"));
-        assertThat(history.get(2), instanceOf(ExitEvent.class));
-
-        assertThat(history.get(3), instanceOf(ExitEvent.class));
-    }
+//    @Test
+//    public void testFormattedElementResponse() {
+//        SimpleRenderer renderer = new SimpleRenderer();
+//        ResponseWalker walker = new ResponseWalker(renderer);
+//        Init.register(FormatDate.class, SimpleDateFormatter.class);
+//        walker.walk(new FormattedResponse());
+//        List<SimpleRenderer.Event> history = renderer.getHistory();
+//        assertThat(history.get(0), instanceOf(EnterEvent.class));
+//
+//        assertThat(history.get(1), instanceOf(EnterEvent.class));
+//        assertThat(((EnterEvent) history.get(1)).returned, is((Object) "1992"));
+//        assertThat(history.get(2), instanceOf(ExitEvent.class));
+//
+//        assertThat(history.get(3), instanceOf(ExitEvent.class));
+//    }
 
     @Test
     public void testSingleCollectionResponse() {
@@ -151,15 +147,6 @@ public class ResponseWalkerTest {
         assertThat(history.get(7), instanceOf(ExitEvent.class));
     }
 
-    @Element("Formatted-Response")
-    public static class FormattedResponse {
-        
-        @Element("date")
-        @FormatDate("YYYY")
-        public Date getDate() {
-            return DateUtil.getDate(1992, 3, 30);
-        }
-    }
 
     public static class SimpleResponse {
     }

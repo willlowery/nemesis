@@ -1,7 +1,7 @@
 package renderer;
 
-import annotation.response.JSONRenderer;
-import annotation.response.ResponseWalker;
+import response.JSONRenderer;
+import response.ResponseWalker;
 import java.io.IOException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;

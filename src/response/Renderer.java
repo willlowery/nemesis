@@ -1,4 +1,4 @@
-package annotation.response;
+package response;
 
 import java.lang.reflect.Method;
 
@@ -8,9 +8,9 @@ import java.lang.reflect.Method;
  */
 public interface Renderer {
 
-    public void enterElement(String name, Object returned, Method method);
+    public void enterMethod(String name, Object returned, Method method);
 
-    public void enterElement(String name, Object returned);
+    public void enterObject(String name, Object returned);
     
     public void enterList(String name, Method method);
     

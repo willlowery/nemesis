@@ -1,5 +1,5 @@
 
-package annotation.response;
+package response;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -17,12 +17,12 @@ public class SimpleRenderer implements Renderer {
     }
 
     @Override
-    public void enterElement(String elementName, Object returned, Method method) {
+    public void enterMethod(String elementName, Object returned, Method method) {
         history.add(new EnterEvent(elementName, returned, method));
     }  
 
     @Override
-    public void enterElement(String elementName, Object returned) {
+    public void enterObject(String elementName, Object returned) {
          history.add(new EnterEvent(elementName, returned, null));
     }
 

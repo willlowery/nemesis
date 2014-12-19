@@ -1,6 +1,8 @@
-package annotation.gateway;
+package gateway;
 
-import java.lang.annotation.Annotation;
+import annotation.Handle;
+import annotation.Resource;
+import form.Form;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -13,7 +15,7 @@ import java.util.Map;
 public class Proxy {
 
     Class<?> gateway;
-    Map<Handle.Method, Method> methods;
+    Map<String, Method> methods;
 
     public Proxy(Class<?> gateway) {
         this.gateway = gateway;
@@ -21,16 +23,18 @@ public class Proxy {
         findMethods(gateway);
     }   
     
-    public Method getMethod(Handle.Method method){
+    public Method getMethod(String method){
         return methods.get(method);
     }
 
-    public Class<? extends form.Form> getFormClass(Handle.Method method) {
+    public Class<? extends form.Form> getFormClass(String method) {
         if (methods.containsKey(method)) {
-            Method get = methods.get(method);
-            Annotation[][] paramAnnos = get.getParameterAnnotations();
-            if (paramAnnos.length >= 1 && paramAnnos[0].length >= 1 && (paramAnnos[0][0] instanceof Form)) {
-                return  (Class<? extends form.Form>) get.getParameters()[0].getType();
+            Method handler = methods.get(method);
+            Class<?>[] types = handler.getParameterTypes();
+            for(Class<?> type : types){
+                if(Form.class.isAssignableFrom(type)){
+                    return (Class<? extends Form>) type;
+                }
             }
         }
         return null;
@@ -52,7 +56,7 @@ public class Proxy {
         }        
     }
 
-    public Object handleMethod(Handle.Method method) {
+    public Object handleMethod(String method) {
         if (methods.containsKey(method)) {
             Method get = methods.get(method);
             try {
@@ -68,7 +72,7 @@ public class Proxy {
         return null;
     }
 
-    public Object handleMethod(Handle.Method method, Object o) {
+    public Object handleMethod(String method, Object o) {
         if (methods.containsKey(method)) {
             Method get = methods.get(method);
             try {
@@ -102,7 +106,7 @@ public class Proxy {
         for (Method m : allMethods) {
             if (m.isAnnotationPresent(Handle.class)) {
                 Handle handle = m.getAnnotation(Handle.class);
-                methods.put(handle.method(), m);
+                methods.put(handle.method().toLowerCase(), m);
             }
         }
         findMethods(gateway.getSuperclass());

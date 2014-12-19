@@ -1,5 +1,6 @@
-package annotation.response;
+package response;
 
+import annotation.Element;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
@@ -19,17 +20,17 @@ public class JSONRenderer implements Renderer {
     }
 
     @Override
-    public void enterElement(String elementName, Object returned, Method method) {
+    public void enterMethod(String elementName, Object returned, Method method) {
 
-        context.peek().enterElement(elementName, returned, method);
+        context.peek().enterMethod(elementName, returned, method);
     }
 
     @Override
-    public void enterElement(String elementName, Object returned) {
+    public void enterObject(String elementName, Object returned) {
         if (!context.isEmpty()) {
-            context.peek().enterElement(elementName, returned);
+            context.peek().enterObject(elementName, returned);
         }
-        context.push(new ObjectContext(stream));
+        context.push(new ObjectContext(stream, elementName));
 
     }
 
@@ -48,9 +49,8 @@ public class JSONRenderer implements Renderer {
     @Override
     public void enterList(String name, Method method) {
         
-        if (!context.peek().first) {
-            stream.print(" ,");
-        }
+        stream.print(", ");
+        
         context.peek().enterList(name, method);
         
         stream.print(quote(name) + ": ");
@@ -73,11 +73,11 @@ public class JSONRenderer implements Renderer {
         }
 
         @Override
-        public void enterElement(String name, Object returned, Method method) {
+        public void enterMethod(String name, Object returned, Method method) {
         }
 
         @Override
-        public void enterElement(String name, Object returned) {
+        public void enterObject(String name, Object returned) {
         }
 
         @Override
@@ -100,9 +100,10 @@ public class JSONRenderer implements Renderer {
 
     public static class ObjectContext extends JSON {
 
-        public ObjectContext(PrintWriter writer) {
+        public ObjectContext(PrintWriter writer, String name) {
             super(writer);
-            writer.print("{");
+            writer.print("{" +quote("@object")+": " +quote(name));
+            
         }
 
         @Override
@@ -112,10 +113,8 @@ public class JSONRenderer implements Renderer {
         
 
         @Override
-        public void enterElement(String elementName, Object returned, Method method) {
-            if (!first) {
-                writer.print(", ");
-            }
+        public void enterMethod(String elementName, Object returned, Method method) {
+            writer.print(", ");
             if (method.getReturnType().isAnnotationPresent(Element.class)) {
                 writer.print(quote(elementName) + ": ");
             } else {
@@ -125,7 +124,7 @@ public class JSONRenderer implements Renderer {
         }
 
         @Override
-        public void enterElement(String elementName, Object returned) {
+        public void enterObject(String elementName, Object returned) {
 
         }
 
@@ -143,7 +142,7 @@ public class JSONRenderer implements Renderer {
         }
 
         @Override
-        public void enterElement(String name, Object returned, Method method) {
+        public void enterMethod(String name, Object returned, Method method) {
             if (!first) {
                 writer.print(", ");
             }
@@ -163,7 +162,7 @@ public class JSONRenderer implements Renderer {
         }
 
         @Override
-        public void enterElement(String name, Object returned) {
+        public void enterObject(String name, Object returned) {
             if (first) {
                 first = false;
             } else {
