@@ -3,7 +3,6 @@ package nemesis.response;
 import java.util.Arrays;
 import java.util.List;
 import nemesis.annotation.Element;
-import nemesis.annotation.Listing;
 import nemesis.response.ResponseWalker.ResponseNotAnnotatedException;
 import nemesis.response.SimpleRenderer.EnterEvent;
 import nemesis.response.SimpleRenderer.ExitEvent;
@@ -49,21 +48,6 @@ public class ResponseWalkerTest {
         assertThat(history.get(3), instanceOf(ExitEvent.class));
     }
 
-//    @Test
-//    public void testFormattedElementResponse() {
-//        SimpleRenderer renderer = new SimpleRenderer();
-//        ResponseWalker walker = new ResponseWalker(renderer);
-//        Init.register(FormatDate.class, SimpleDateFormatter.class);
-//        walker.walk(new FormattedResponse());
-//        List<SimpleRenderer.Event> history = renderer.getHistory();
-//        assertThat(history.get(0), instanceOf(EnterEvent.class));
-//
-//        assertThat(history.get(1), instanceOf(EnterEvent.class));
-//        assertThat(((EnterEvent) history.get(1)).returned, is((Object) "1992"));
-//        assertThat(history.get(2), instanceOf(ExitEvent.class));
-//
-//        assertThat(history.get(3), instanceOf(ExitEvent.class));
-//    }
 
     @Test
     public void testSingleCollectionResponse() {
@@ -173,7 +157,6 @@ public class ResponseWalkerTest {
     public static class SingleCollection {
 
         @Element("Element")
-        @Listing(String.class)
         public List<String> getElement() {
             return Arrays.asList("value", "value", "value");
         }
@@ -183,7 +166,6 @@ public class ResponseWalkerTest {
     public static class SingleArray {
 
         @Element("Element")
-        @Listing(String.class)
         public String[] getElement() {
             return new String[]{"value", "value", "value"};
         }
@@ -193,7 +175,6 @@ public class ResponseWalkerTest {
     public static class SingleCollectionOfResponses {
 
         @Element("Element")
-        @Listing(SingleElement.class)
         public List<SingleElement> getElement() {
             return Arrays.asList(new SingleElement(), new SingleElement(), new SingleElement());
         }

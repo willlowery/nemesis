@@ -7,7 +7,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import nemesis.annotation.Element;
-import nemesis.annotation.Listing;
 
 /**
  *
@@ -52,10 +51,14 @@ public class ResponseWalker {
     }
 
     private void handleCollection(Method method, Object returned) {
-        visitList(getElementName(method), method);
-        if (method.getAnnotation(Listing.class).value().isAnnotationPresent(Element.class)) {
-            for (Object o : (Collection) returned) {
-                walk(o, method.getAnnotation(Listing.class).value());
+        ArrayList list = removeNulls((Collection) returned);
+        if(list.isEmpty()){
+            return;
+        }        
+        visitList(getElementName(method), method);        
+        if (list.get(0).getClass().isAnnotationPresent(Element.class)) {
+            for (Object o : (Collection) returned) {                
+                walk(o, o.getClass());
             }
         } else {
             for (Object o : (Collection) returned) {
@@ -67,6 +70,16 @@ public class ResponseWalker {
 
     private boolean isA(Class<?> a, Class<?> b) {
         return b.isAssignableFrom(a);
+    }
+    
+    private ArrayList removeNulls(Collection col){
+        ArrayList list = new ArrayList();
+        for (Object c : col) {
+            if(c != null){
+                list.add(c);
+            }
+        }
+        return list;
     }
 
     private String getElement(Class<?> toWalk) {

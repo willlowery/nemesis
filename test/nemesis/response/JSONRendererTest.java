@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.List;
 import nemesis.annotation.Element;
-import nemesis.annotation.Listing;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -131,7 +130,18 @@ public class JSONRendererTest {
         renderer.exitObject("response");
         assertThat(stream.toString(), is("{\"@object\": \"response\"}"));
     }
+    
+    @Test
+    public void testEscapeCharactersAreEscaped() throws NoSuchMethodException{
+        renderer.enterObject("response", null);
 
+        renderer.enterMethod("field", "\"\n\r\t ", Class.class.getMethod("str"));
+        renderer.exitMethod("field");
+
+        renderer.exitObject("response");
+        assertThat(stream.toString(), is("{\"@object\": \"response\", \"field\": \"\\\"\\\n\\\r\\\t \"}"));
+    }
+    
     @Element("a")
     public class Class {
 
@@ -146,7 +156,6 @@ public class JSONRendererTest {
         }
 
         @Element("list")
-        @Listing(String.class)
         public List list() {
             return Arrays.asList("a", "b", "c");
         }

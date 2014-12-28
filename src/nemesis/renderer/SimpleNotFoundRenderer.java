@@ -2,16 +2,23 @@ package nemesis.renderer;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import nemesis.init.Init;
+import nemesis.gateway.Proxy;
 
 /**
  *
  * @author william.lowery@rocky.edu
  */
 public class SimpleNotFoundRenderer implements Renderer {
-
+    
+    HashMap<String, Proxy> resources;
+    public SimpleNotFoundRenderer(HashMap<String,Proxy> resources){
+        this.resources = resources;
+    }
+    
+    
     @Override
     public boolean render(HttpServletRequest req, HttpServletResponse resp, Object toRender) {
         try {
@@ -24,7 +31,7 @@ public class SimpleNotFoundRenderer implements Renderer {
             writer.print(" had no mapping");            
             writer.println("<h3>");
             writer.println("<ul>");
-            for(String url : Init.resources.keySet()){
+            for(String url : resources.keySet()){
                 
                 writer.println("<li>" + url + "<li>");
             }

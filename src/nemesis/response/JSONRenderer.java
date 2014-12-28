@@ -19,10 +19,38 @@ public class JSONRenderer implements Renderer {
         this.stream = new PrintWriter(stream);
     }
 
+    private String sanitize(Object value){
+        if(value == null ){
+            return "";
+        }
+        
+        StringBuilder builder = new StringBuilder();
+        String temp = value.toString();
+        for(int i=0; i < temp.length(); i++){
+            char myChar = temp.charAt(i);
+            switch(myChar){
+                case '"':
+                    builder.append("\\\"");
+                    break;
+                case '\n':
+                    builder.append("\\\n");
+                    break;
+                case '\r':
+                    builder.append("\\\r");
+                    break;
+                case '\t':
+                    builder.append("\\\t");
+                    break;
+                default: 
+                    builder.append(myChar);
+            }
+        }
+        return builder.toString();
+    }
+    
     @Override
     public void enterMethod(String elementName, Object returned, Method method) {
-
-        context.peek().enterMethod(elementName, returned, method);
+        context.peek().enterMethod(elementName, sanitize(returned), method);
     }
 
     @Override
