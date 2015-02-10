@@ -16,9 +16,12 @@ public class SimpleExceptionRenderer implements Renderer{
     public boolean render(HttpServletRequest req, HttpServletResponse resp, Object toRender) {
         if(toRender instanceof Exception){            
             try {
+                
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 resp.setContentType("text/html");
-                PrintWriter writer = resp.getWriter();
-                ((Exception) toRender).printStackTrace(writer);
+                ((Exception) toRender).printStackTrace();               
+                
+                ((Exception) toRender).printStackTrace(resp.getWriter());                
                 return true;
             } catch (IOException ex) {
             }

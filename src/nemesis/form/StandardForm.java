@@ -1,11 +1,14 @@
 package nemesis.form;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import p.URLEncodedParser;
 
 /**
  *
@@ -13,10 +16,12 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class StandardForm implements Form {
 
+    public static final int MAX_LENGTH = Integer.MAX_VALUE;
     Map<String, FormElementParser> parsers;
     Map<String, FormElementValidator> elementValidators;
     Map<String, List<Object>> params;
     List<ValidationException> validationExceptions;
+    List<ParseException> parseExceptions;
     List<FormValidator> formValidators;
 
     public StandardForm() {
@@ -25,6 +30,7 @@ public class StandardForm implements Form {
         elementValidators = new HashMap<>();
         validationExceptions = new ArrayList<>();
         formValidators = new ArrayList<>();
+        parseExceptions = new ArrayList<>();
     }
 
     protected void define(String field, FormElementParser parser) {
@@ -48,43 +54,54 @@ public class StandardForm implements Form {
     }
 
     void fillForm(HttpServletRequest request) {
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        for (String key : parsers.keySet()) {
-            List<Object> list = new ArrayList<>();
-            String[] requestParams = parameterMap.get(key);
-            if (requestParams == null) {
-                continue;
-            }
-            for (String param : requestParams) {
-                try {
-                    list.add(parsers.get(key).parse(param, request.getLocale()));
-                } catch (ParseException ex) {
 
-                }
-            }
-            params.put(key, list);
+        Map<String, List<String>> paramMap = new HashMap<>();
+
+        request.getParameterMap().forEach((k, v) -> {
+            paramMap.put((String) k, Arrays.asList((String[]) v));
+        });
+        URLEncodedParser parser = new URLEncodedParser();
+        try {
+            parser.parse(request.getInputStream(), MAX_LENGTH).forEach((k, v) -> {
+                paramMap.put(k, v);
+            });
+        } catch (IOException ex) {
         }
+
+        parsers.keySet().forEach((key) -> {
+            List<Object> list = new ArrayList<>();
+            List<String> requestParams = paramMap.get(key);
+            if (requestParams != null) {
+                requestParams.forEach((s) -> {
+                    try {
+                        list.add(parsers.get(key).parse(s, request.getLocale()));
+                    } catch (ParseException ex) {
+                        parseExceptions.add(ex);
+                    }
+                });
+                params.put(key, list);
+            }
+        });
     }
 
     void validateElements() {
-        for (String key : elementValidators.keySet()) {
-            FormElementValidator validator = elementValidators.get(key);
+        elementValidators.keySet().forEach((key) -> {
             try {
-                validator.validate(key, get(key));
+                elementValidators.get(key).validate(key, get(key));
             } catch (ValidationException ex) {
                 validationExceptions.add(ex);
             }
-        }
+        });
     }
 
     void validateForm() {
-        for (FormValidator validator : formValidators) {
+        formValidators.forEach((validator) -> {
             try {
                 validator.validate(this);
             } catch (ValidationException ex) {
                 validationExceptions.add(ex);
             }
-        }
+        });
     }
 
     protected <DesiredType> DesiredType get(String field) {
@@ -104,9 +121,28 @@ public class StandardForm implements Form {
         return (DesiredType) params.get(field);
     }
 
-    @Override
     public List<ValidationException> getValidationExceptions() {
         return validationExceptions;
+    }
+
+    public List<ParseException> getParseExceptions() {
+        return parseExceptions;
+    }
+
+    public Map<String, FormElementValidator> getElementValidators() {
+        return elementValidators;
+    }
+
+    public Map<String, FormElementParser> getParsers() {
+        return parsers;
+    }
+
+    public List<FormValidator> getFormValidators() {
+        return formValidators;
+    }
+
+    public boolean isValid() {
+        return parseExceptions.isEmpty() && validationExceptions.isEmpty();
     }
 
 }

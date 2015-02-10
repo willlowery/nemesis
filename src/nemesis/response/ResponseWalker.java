@@ -1,12 +1,13 @@
 package nemesis.response;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import nemesis.annotation.Element;
+import nemesis.annotation.Format;
 
 /**
  *
@@ -42,7 +43,7 @@ public class ResponseWalker {
                     visit(getElementName(method), returned, method);
                     leave(getElementName(method));
                 }
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            } catch (Exception ex) {
                 visit("Error", ex.getLocalizedMessage(), method);
                 leave("Error");
             }
@@ -52,17 +53,18 @@ public class ResponseWalker {
 
     private void handleCollection(Method method, Object returned) {
         ArrayList list = removeNulls((Collection) returned);
-        if(list.isEmpty()){
+        if (list.isEmpty()) {
             return;
-        }        
-        visitList(getElementName(method), method);        
+        }
+        visitList(getElementName(method), method);
         if (list.get(0).getClass().isAnnotationPresent(Element.class)) {
-            for (Object o : (Collection) returned) {                
+            for (Object o : (Collection) returned) {
                 walk(o, o.getClass());
             }
         } else {
             for (Object o : (Collection) returned) {
                 visit(getElementName(method), o, method);
+                leave(getElementName(method));
             }
         }
         leaveList(getElementName(method));
@@ -71,11 +73,11 @@ public class ResponseWalker {
     private boolean isA(Class<?> a, Class<?> b) {
         return b.isAssignableFrom(a);
     }
-    
-    private ArrayList removeNulls(Collection col){
+
+    private ArrayList removeNulls(Collection col) {
         ArrayList list = new ArrayList();
         for (Object c : col) {
-            if(c != null){
+            if (c != null) {
                 list.add(c);
             }
         }
@@ -84,10 +86,23 @@ public class ResponseWalker {
 
     private String getElement(Class<?> toWalk) {
         Class<?>[] interfaces = toWalk.getInterfaces();
-        for(Class<?> inter: interfaces ){
+        for (Class<?> inter : interfaces) {
             if (inter.isAnnotationPresent(Element.class)) {
                 return inter.getAnnotation(Element.class).value();
-            }   
+            }
+        }
+        Class<?> parent = toWalk.getSuperclass();
+        while (!parent.equals(Object.class)) {
+            if (parent.isAnnotationPresent(Element.class)) {
+                return parent.getAnnotation(Element.class).value();
+            } else {
+                for (Class<?> inter : parent.getInterfaces()) {
+                    if (inter.isAnnotationPresent(Element.class)) {
+                        return inter.getAnnotation(Element.class).value();
+                    }
+                }
+                parent = parent.getSuperclass();
+            }
         }
         if (toWalk.isAnnotationPresent(Element.class)) {
             return toWalk.getAnnotation(Element.class).value();
@@ -118,6 +133,11 @@ public class ResponseWalker {
                 }
             }
         }
+        Collections.sort(elementsToWalk, (a, b) -> {
+            Element aE = a.getAnnotation(Element.class);
+            Element bE = b.getAnnotation(Element.class);
+            return aE.ord() - bE.ord();
+        });
         return elementsToWalk;
     }
 
@@ -128,7 +148,16 @@ public class ResponseWalker {
     }
 
     private void visit(String name, Object returned, Method method) {
-        Object value = returned;        
+        Object value = returned;
+
+        if (method.isAnnotationPresent(Format.class)) {
+            try {
+                Format format = method.getAnnotation(Format.class);
+                value = format.as().newInstance().format(returned, format.format());
+            } catch (InstantiationException | IllegalAccessException ex) {
+            }
+        }
+
         for (Renderer r : renderers) {
             r.enterMethod(name, value, method);
         }

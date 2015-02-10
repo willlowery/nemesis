@@ -3,7 +3,9 @@ package nemesis.response;
 import java.util.Arrays;
 import java.util.List;
 import nemesis.annotation.Element;
-import nemesis.response.ResponseWalker.ResponseNotAnnotatedException;
+import nemesis.form.ParseException;
+import nemesis.form.StandardForm;
+import nemesis.form.ValidationException;
 import nemesis.response.SimpleRenderer.EnterEvent;
 import nemesis.response.SimpleRenderer.ExitEvent;
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -16,7 +18,7 @@ import org.junit.Test;
  */
 public class ResponseWalkerTest {
 
-    @Test(expected = ResponseNotAnnotatedException.class)
+    @Test()
     public void testSimple() {
         SimpleRenderer renderer = new SimpleRenderer();
         ResponseWalker walker = new ResponseWalker(renderer);
@@ -48,7 +50,6 @@ public class ResponseWalkerTest {
         assertThat(history.get(3), instanceOf(ExitEvent.class));
     }
 
-
     @Test
     public void testSingleCollectionResponse() {
         SimpleRenderer renderer = new SimpleRenderer();
@@ -59,11 +60,16 @@ public class ResponseWalkerTest {
         assertThat(history.get(1), instanceOf(EnterEvent.class));
 
         assertThat(history.get(2), instanceOf(EnterEvent.class));
-        assertThat(history.get(3), instanceOf(EnterEvent.class));
-        assertThat(history.get(4), instanceOf(EnterEvent.class));
+        assertThat(history.get(3), instanceOf(ExitEvent.class));
 
+        assertThat(history.get(4), instanceOf(EnterEvent.class));
         assertThat(history.get(5), instanceOf(ExitEvent.class));
-        assertThat(history.get(6), instanceOf(ExitEvent.class));
+
+        assertThat(history.get(6), instanceOf(EnterEvent.class));
+        assertThat(history.get(7), instanceOf(ExitEvent.class));
+
+        assertThat(history.get(8), instanceOf(ExitEvent.class));
+        assertThat(history.get(9), instanceOf(ExitEvent.class));
     }
 
     @Test
@@ -76,11 +82,16 @@ public class ResponseWalkerTest {
         assertThat(history.get(1), instanceOf(EnterEvent.class));
 
         assertThat(history.get(2), instanceOf(EnterEvent.class));
-        assertThat(history.get(3), instanceOf(EnterEvent.class));
-        assertThat(history.get(4), instanceOf(EnterEvent.class));
+        assertThat(history.get(3), instanceOf(ExitEvent.class));
 
+        assertThat(history.get(4), instanceOf(EnterEvent.class));
         assertThat(history.get(5), instanceOf(ExitEvent.class));
-        assertThat(history.get(6), instanceOf(ExitEvent.class));
+
+        assertThat(history.get(6), instanceOf(EnterEvent.class));
+        assertThat(history.get(7), instanceOf(ExitEvent.class));
+
+        assertThat(history.get(8), instanceOf(ExitEvent.class));
+        assertThat(history.get(9), instanceOf(ExitEvent.class));
     }
 
     @Test
@@ -130,10 +141,9 @@ public class ResponseWalkerTest {
         assertThat(history.get(6), instanceOf(ExitEvent.class));
         assertThat(history.get(7), instanceOf(ExitEvent.class));
     }
-
-
-    public static class SimpleResponse {
-    }
+    
+    public static class SimpleResponse extends StandardForm{
+    }        
 
     @Element("SingleElement")
     public static class SingleElement {

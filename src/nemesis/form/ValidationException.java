@@ -1,10 +1,13 @@
 
 package nemesis.form;
 
+import nemesis.annotation.Element;
+
 /**
  *
  * @author william.lowery@rocky.edu
  */
+@Element("ValidationException")
 public class ValidationException extends RuntimeException{
     private String fieldName;
 
@@ -20,8 +23,14 @@ public class ValidationException extends RuntimeException{
         this.fieldName = fieldName;
     }
     
+    @Element("field")
     public String getFieldName(){
         return fieldName;
     }        
+    
+    @Element("message")
+    public String getMessage(){
+        return super.getMessage();
+    }
     
 }

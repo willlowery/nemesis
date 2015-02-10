@@ -1,14 +1,20 @@
-package nemesis.gateway;
+package nemesis.servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import nemesis.annotation.Handle;
 import nemesis.annotation.Resource;
 import nemesis.form.Form;
+import nemesis.form.FormElementParser;
+import nemesis.form.FormElementValidator;
+import nemesis.form.FormValidator;
+import nemesis.form.ParseException;
 import nemesis.form.ValidationException;
-import nemesis.gateway.Proxy.InvalidGatewayException;
+import nemesis.servlet.Proxy.InvalidGatewayException;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -62,10 +68,10 @@ public class ProxyTest {
     }
 
     @Test
-    public void testProxyGetFormClass() {
+    public void testProxyGetFormClass() throws InstantiationException, IllegalAccessException {
         Proxy proxy = new Proxy(GatewayNeedingAForm.class);
-        Class<? extends Form> formClass = proxy.getFormClass("get");
-        assertThat(formClass.getCanonicalName(), is(FakeForm.class.getCanonicalName()));
+        Form form = proxy.getForm("get", null);
+        assertTrue(form instanceof FakeForm);
     }
 
     @Test(expected = RuntimeException.class)
@@ -125,6 +131,26 @@ public class ProxyTest {
         @Override
         public List<ValidationException> getValidationExceptions() {
             return new ArrayList<>();
+        }
+
+        @Override
+        public Map<String, FormElementValidator> getElementValidators() {
+            return new HashMap<>();
+        }
+
+        @Override
+        public List<FormValidator> getFormValidators() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public List<ParseException> getParseExceptions() {
+            return new ArrayList<>();
+        }
+
+        @Override
+        public Map<String, FormElementParser> getParsers() {
+            return new HashMap<>();
         }
 
     }

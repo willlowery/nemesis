@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import nemesis.gateway.Proxy;
+import nemesis.servlet.Proxy;
 
 /**
  *

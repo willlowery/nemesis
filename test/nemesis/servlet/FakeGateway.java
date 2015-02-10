@@ -1,5 +1,5 @@
 
-package nemesis.gateway;
+package nemesis.servlet;
 
 import nemesis.annotation.Handle;
 import nemesis.annotation.Resource;

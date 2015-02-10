@@ -1,9 +1,11 @@
-package nemesis.gateway;
+package nemesis.servlet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import nemesis.annotation.Handle;
 import nemesis.annotation.Resource;
 import nemesis.form.Form;
@@ -22,18 +24,24 @@ public class Proxy {
         methods = new HashMap<>();
         findMethods(gateway);
     }   
+
+    public Map<String, Method> getMethods() {
+        return methods;
+    }
     
     public Method getMethod(String method){
         return methods.get(method);
     }
 
-    public Class<? extends nemesis.form.Form> getFormClass(String method) {
+    public Form getForm(String method, HttpServletRequest req) throws InstantiationException, IllegalAccessException {
         if (methods.containsKey(method)) {
             Method handler = methods.get(method);
             Class<?>[] types = handler.getParameterTypes();
             for(Class<?> type : types){
                 if(Form.class.isAssignableFrom(type)){
-                    return (Class<? extends Form>) type;
+                   Form form = (Form) type.newInstance();
+                   form.map(req);
+                   return form;
                 }
             }
         }
@@ -56,27 +64,11 @@ public class Proxy {
         }        
     }
 
-    public Object handleMethod(String method) {
+    public Object handleMethod(String method, Object... o) {
         if (methods.containsKey(method)) {
             Method get = methods.get(method);
             try {
-                return get.invoke(getInstance());
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                if (ex.getCause() instanceof RuntimeException) {
-                    throw (RuntimeException) ex.getCause();
-                } else {
-                    throw new RuntimeException(ex.getCause());
-                }
-            }
-        }
-        return null;
-    }
-
-    public Object handleMethod(String method, Object o) {
-        if (methods.containsKey(method)) {
-            Method get = methods.get(method);
-            try {
-                return get.invoke(getInstance(), o);
+                return get.invoke(getInstance(), createParamArray(get, o));
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 if (ex.getCause() instanceof RuntimeException) {
                     throw (RuntimeException) ex.getCause();
@@ -87,7 +79,7 @@ public class Proxy {
                 }
             }
         }
-        return  null;
+        return null;
     }
 
     Object getInstance() {
@@ -116,6 +108,26 @@ public class Proxy {
 
         private InvalidGatewayException(String string) {
             super(string);
+        }
+    }
+    
+    public static Object[] createParamArray(Method m, Object... in){
+        HashMap<String, Object> map = new HashMap<>();
+        Object[] values = new Object[m.getParameterCount()];
+        for (Object o : in) {
+            if(o != null)
+                map.put(o.getClass().getName(), o);
+        }
+        int idx = 0;
+        for(Type t: m.getParameterTypes()){
+            values[idx++] = map.get(t.getTypeName());
+        }
+        return values;
+    }
+    
+    public static class T{
+        public void thing(String a, Integer b){
+            System.out.println(a + " " + b);
         }
     }
 }

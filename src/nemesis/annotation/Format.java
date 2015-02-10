@@ -2,13 +2,12 @@ package nemesis.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import nemesis.response.Formatter;
 
-/**
- *
- * @author william.lowery@rocky.edu
- */
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Element {
-    String value();
-    int ord() default Integer.MAX_VALUE;
+public @interface Format {
+
+    String format() default ""; 
+    Class<? extends Formatter> as();
+    
 }
